@@ -5,10 +5,16 @@ module.exports = chop
  */
 function chop(int, array)
 {
-  const middle = Math.floor(array.length / 2)
+  let min     = array[0]
+  let max     = array[-1]
+  let pivot   = ((int - array[min]) * (max-) 
 
-  if (array[middle] == int)
-    return middle
+  if ()
+}
 
-  
+function pivot(min, max, array)
+{
+  const difference = max - min
+  const elementVal = difference / array.length
+  const pivotVal   = (elementVal * array.length) / 2 
 }
