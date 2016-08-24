@@ -1,6 +1,6 @@
 const expect = require('chai').expect
-const {getHeadings, splitRows, getColumn, convertNumbers,
-       getColumns, parseText} = require('./weather')
+const {getHeadings, splitRows, getColumn, convertIfNumber,
+       getColumns, parseText, removeHyphens} = require('./weather')
 
 describe('#getHeadings()', () => {
   it('returns the correct number of headings', () => {
@@ -22,14 +22,16 @@ describe('#splitRows()', () => {
     expect(splitRows(text)).to.eql(["Hello", "     World"])
   })
 
-  it('filters out empty rows', () => {
+  it('filters out empty rows and hyphens', () => {
     const text =
-    `Dogs and
+`
+Dogs and
 
-     Cats
-    `
+Cats
+--------------
+`
 
-    expect(splitRows(text)).to.eql(["Dogs and", "     Cats"])
+    expect(splitRows(text)).to.eql(["Dogs and", "Cats"])
   })
 })
 
@@ -45,15 +47,30 @@ describe('#getColumn()', () => {
       "world lie"
     ]
 
-    expect(getColumn("cats", rows)).to.eql([1, 3, 4, "world"])
+    expect(getColumn("cats", "dogs", rows)).to.eql([1, 3, 4, "world"])
   })
 })
 
-describe('#convertNumbers()', () => {
+describe('#convertIfNumber()', () => {
   it('converts a value to a number when this will produce a valid number', () => {
-    const column = ["1", "a", "b", "2", "HelloWorld"]
+    const column   = ["1", "a", "b", "2", "HelloWorld"]
+    const expected = [1, "a", "b", 2, "HelloWorld"]
 
-    expect(convertNumbers(column)).to.eql([1, "a", "b", 2, "HelloWorld"])
+    column.forEach((n, i) => {
+      expect(convertIfNumber(n)).to.equal(expected[i])
+    })
+    
+  })
+})
+
+describe('#removeHyphens()', () => {
+  it('replaces hyphens with whitespace', () => {
+    const testData = ['-- --', '-----']
+    const expected = ["", ""]
+
+    testData.forEach((n, i) => {
+      expect(removeHyphens(n)).to.equal(expected[i])
+    })
   })
 })
 
@@ -68,7 +85,7 @@ describe('#getColumns()', () => {
     ]
     expect(getColumns(headings, rows)).to.eql({
       cats: ["hello", "liewe", 0],
-      dogs: [5, 8, "-"]
+      dogs: [5, 8, ""]
     })
   })
 })

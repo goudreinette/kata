@@ -1,5 +1,5 @@
 module.exports = {getHeadings, splitRows, getColumn,
-   getColumns, convertNumbers, parseText}
+   getColumns, convertIfNumber, parseText, removeHyphens}
 
 function getHeadings (row)
 {
@@ -8,28 +8,41 @@ function getHeadings (row)
 
 function splitRows (row)
 {
-  return row.split('\n').filter(row => row.trim() != "")
+  return row.split('\n')
+            .map(row => row.replace(/-+/g, ''))
+            .filter(row => row.trim() != "")
 }
 
-function getColumn (heading, rows)
+function getColumn (heading, nextHeading, rows)
 {
   const start  = rows[0].indexOf(heading)
-  const end    = start + heading.length + 1
+  const end    = nextHeading
+                     ? rows[0].indexOf(nextHeading) 
+                     : start + heading.length + 1
+  
   const column = rows.slice(1)
                      .map(row => row.slice(start, end).trim())
+                     .map(convertIfNumber)
+                     .map(removeHyphens)
 
-  return convertNumbers(column)
+  return column
 }
 
-function convertNumbers (values)
+function convertIfNumber (val)
 {
-  return values.map(val => !isNaN(Number(val)) ? Number(val) : val)
+  return !isNaN(Number(val)) ? Number(val) : val
+}
+
+function removeHyphens (val)
+{
+  return typeof val == 'string'
+          ? val.replace(/[\s+|-]/gi, "")
+          : val
 }
 
 function getColumns (headings, rows)
 {
-
-  const columns   = headings.map(heading => getColumn(heading, rows))
+  const columns   = headings.map((heading, i) => getColumn(heading, headings[i + 1], rows))
   const byHeading = columns.map((column, i) => ({[headings[i]]: column}))
 
   return Object.assign(...byHeading)
